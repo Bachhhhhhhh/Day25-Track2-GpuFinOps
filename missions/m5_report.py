@@ -26,12 +26,9 @@ def run(verbose: bool = True) -> dict:
     purchasing_savings = r3["on_demand_monthly"] - r3["optimized_monthly"]
 
     idle_savings = r1["idle_waste_daily"] * DAYS
-    rightsize_savings = 0.0
-    for lie in r1["lies"]:
-        cur = lie["gpu_type"]
-        tgt = RIGHTSIZE_MAP.get(cur, cur)
-        delta = num(cat[cur]["on_demand_hr"]) - num(cat[tgt]["on_demand_hr"])
-        rightsize_savings += max(0.0, delta) * 24 * DAYS
+    
+    # Use dynamic right-sizing savings from M1 Extension 2 to maintain consistency
+    rightsize_savings = sum(r["monthly_save"] for r in r1.get("right_sizing", []))
 
     levers = {
         "Inference (cascade/cache/batch)": round(infer_savings),
